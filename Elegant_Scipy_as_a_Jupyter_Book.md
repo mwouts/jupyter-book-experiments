@@ -1,14 +1,32 @@
 # Can we turn Elegant Scipy into a Jupyter-book?
 
+Give a try to the below on [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mwouts/jupyter-book-experiments/master?filepath=Elegant_Scipy_as_a_Jupyter_Book.md)!
+
 ## Create an environment with latest Jupyter Book and Jupytext
+
+We create a new conda environment for this
 
 ```bash
 conda create -n jupytextbook
 conda activate jupytextbook
-conda install jupyter numpy matplotlib tqdm pytest -y
+```
 
+There we install a few standard packages (dependencies of Jupyter Book and Jupytext)
+
+```bash
+conda install jupyter numpy matplotlib tqdm pytest -y
+```
+
+Finally we install the latest version of Jupyter Book
+
+```bash
 git clone https://github.com/jupyter/jupyter-book.git
 pip install jupyter-book
+```
+
+And of Jupytext
+
+```bash
 git clone https://github.com/mwouts/jupytext.git
 pip install jupytext
 ```
@@ -30,12 +48,13 @@ python -m ipykernel install --name elegant-scipy-kernel --user
 
 We also inject the current kernel into the Markdown file (later on, if possible, I'd prefer to pass the desired kernel as an option to Jupyter book)
 
+Unfortunately the below does not work - to be fixed at https://github.com/mwouts/jupytext/issues/325
+
 ```bash
-# Not working https://github.com/mwouts/jupytext/issues/325
 # jupytext --set-kernel elegant-scipy-kernel elegant-scipy/markdown/*
 ```
 
-Anyway the above does not work yet, so I'll do it manually:
+So I'll do it manually:
 
 ```bash
 for MDFILE in elegant-scipy/markdown/*.markdown; do
@@ -62,7 +81,7 @@ done
 
 ## Create our Jupyter Book
 
-We first create then book
+We first create our book
 
 ```bash
 jupyter-book create elegant-scipy-book --content-folder elegant-scipy/markdown --license elegant-scipy/LICENSE.md
