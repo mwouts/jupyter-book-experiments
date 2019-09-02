@@ -1,6 +1,6 @@
 # Can we turn Elegant Scipy into a Jupyter-book?
 
-Give a try to the below on [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mwouts/jupyter-book-experiments/master?filepath=Elegant_Scipy_as_a_Jupyter_Book.md)!
+Ideally that document could be executed as a notebook on [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mwouts/jupyter-book-experiments/master?filepath=Elegant_Scipy_as_a_Jupyter_Book.md). But `conda activate` in the first cell below seems to hang...
 
 ## Create an environment with latest Jupyter Book and Jupytext
 
