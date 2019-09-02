@@ -73,9 +73,11 @@ jupyter:
 ---
 
 ' | cat - $MDFILE > /tmp/concat
-mv /tmp/concat $MDFILE
-# rename .markdown to .md extension?
-# mv /tmp/concat "${MDFILE%.markdown}.md"
+# mv /tmp/concat $MDFILE
+
+# Maybe I don't have the correct version of Jupyter-Book: it doesn't know about the .markdown extension??
+mv /tmp/concat "${MDFILE%.markdown}.md"
+rm $MDFILE
 done
 ```
 
@@ -91,24 +93,26 @@ Then we update the table of contents (with only two chapters for now)
 
 ```bash
 echo '- title: Elegant Scipy
-  url: /elegant-scipy/acknowledgements
+  url: /acknowledgements
   not_numbered: true
   expand_sections: true
   sections:
   - title: Preface
-    url: /elegant-scipy/preface
+    url: /preface
     not_numbered: true
   - title: "Elegant NumPy: The Foundation of Scientific Python"
-    url: /elegant-scipy/ch1
+    url: /ch1
   - title: Quantile Normalization with NumPy and SciPy
-    url: /elegant-scipy/ch2
+    url: /ch2
   - title: Epilogue
-    url: /elegant-scipy/epilogue
+    url: /epilogue
     not_numbered: true
 ' > ./elegant-scipy-book/_data/toc.yml
 ```
 
 and finally, we build the book
+
+?? Again maybe I don't have the correct version: notebooks are not executed
 
 ```bash
 jupyter-book build elegant-scipy-book
