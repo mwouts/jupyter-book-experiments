@@ -46,9 +46,7 @@ pip install jupytext
 git clone https://github.com/elegant-scipy/elegant-scipy.git
 ```
 
-# Install the book requirements
-
-We could create a separate env for that, but for simplicity we use the same environment as above
+We also install the book requirements. We could create a separate env for that, but for simplicity we use the same environment as above
 
 ```bash
 pip install -r elegant-scipy/requirements.txt
@@ -121,8 +119,25 @@ echo '- title: Elegant Scipy
 
 and finally, we build the book
 
-?? Again maybe I don't have the correct version: notebooks are not executed
-
 ```bash
 jupyter-book build elegant-scipy-book
 ```
+
+The result is a collection of `.md` files in `elegant-scipy-book/_build`
+
+```bash
+ls -l elegant-scipy-book/_build
+```
+
+# TODO
+- find out why Jupyter Book is not aware of the `.markdown` extension
+- fix the Jupyter issue (`--set-kernel` not working)
+- find the right way to run the notebooks:
+
+    jupytext --from md --to ipynb --execute elegant-scipy/markdown
+
+fails on `ch1.md` with error message 
+    
+    FileNotFoundError: [Errno 2] No such file or directory: 'data/counts.txt.bz2'
+    
+Maybe we should just execute in the appropriate dir, e.g. `cd elegant-scipy`?
