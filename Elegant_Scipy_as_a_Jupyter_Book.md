@@ -4,10 +4,17 @@ Ideally that document could be executed as a notebook on [![Binder](https://mybi
 
 ## Create an environment with latest Jupyter Book and Jupytext
 
+To start with we init conda on our bash kernel
+```bash
+# This is what 'conda init' injects in ~/.bashrc
+# Skip this if your conda is already setup
+eval "$('/srv/conda/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+```
+
 We create a new conda environment for this
 
 ```bash
-conda create -n jupytextbook
+conda create -n jupytextbook -y
 conda activate jupytextbook
 ```
 
