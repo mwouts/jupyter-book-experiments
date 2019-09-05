@@ -30,14 +30,14 @@ Finally we install the latest version of Jupyter Book
 
 ```bash
 git clone https://github.com/jupyter/jupyter-book.git
-pip install jupyter-book
+pip install ./jupyter-book
 ```
 
 And of Jupytext
 
 ```bash
 git clone https://github.com/mwouts/jupytext.git
-pip install jupytext
+pip install ./jupytext
 ```
 
 ## Download Elegant-Scipy
