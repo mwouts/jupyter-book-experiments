@@ -6,14 +6,12 @@ This document is a Bash Jupyter notebook that you can run interactively in Jupyt
 
 ## Create an environment with latest Jupyter Book and Jupytext
 
-To start with we init conda on our bash kernel
+To start with we init conda on our Binder
 ```bash
-# This is what 'conda init' injects in ~/.bashrc
-# Skip this if your conda is already setup
-eval "$('/srv/conda/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+. "/srv/conda/etc/profile.d/conda.sh"
 ```
 
-We create a new conda environment for this
+Then we create a new conda environment
 
 ```bash
 conda create -n jupytextbook -y
@@ -26,18 +24,18 @@ There we install a few standard packages (dependencies of Jupyter Book and Jupyt
 conda install jupyter numpy matplotlib tqdm pytest -y
 ```
 
-Finally we install the latest version of Jupyter Book
-
-```bash
-git clone https://github.com/jupyter/jupyter-book.git
-pip install ./jupyter-book
-```
-
-And of Jupytext
+Finally we install the latest version of Jupytext
 
 ```bash
 git clone https://github.com/mwouts/jupytext.git
 pip install ./jupytext
+```
+
+And of Jupyter Book
+
+```bash
+git clone https://github.com/jupyter/jupyter-book.git
+pip install ./jupyter-book
 ```
 
 ## Download Elegant-Scipy
@@ -46,7 +44,7 @@ pip install ./jupytext
 git clone https://github.com/elegant-scipy/elegant-scipy.git
 ```
 
-We also install the book requirements. We could create a separate env for that, but for simplicity we use the same environment as above
+We also install the book requirements. We could have created a separate env for that, but for simplicity we use the same environment as above
 
 ```bash
 pip install -r elegant-scipy/requirements.txt
@@ -80,11 +78,7 @@ jupyter:
 ---
 
 ' | cat - $MDFILE > /tmp/concat
-# mv /tmp/concat $MDFILE
-
-# Maybe I don't have the correct version of Jupyter-Book: it doesn't know about the .markdown extension??
-mv /tmp/concat "${MDFILE%.markdown}.md"
-rm $MDFILE
+mv /tmp/concat $MDFILE
 done
 ```
 
@@ -130,14 +124,6 @@ ls -l elegant-scipy-book/_build
 ```
 
 # TODO
-- find out why Jupyter Book is not aware of the `.markdown` extension
-- fix the Jupyter issue (`--set-kernel` not working)
-- find the right way to run the notebooks:
-
-    jupytext --from md --to ipynb --execute elegant-scipy/markdown
-
-fails on `ch1.md` with error message 
-    
-    FileNotFoundError: [Errno 2] No such file or directory: 'data/counts.txt.bz2'
-    
-Maybe we should just execute in the appropriate dir, e.g. `cd elegant-scipy`?
+- fix the `jupyter-book create` command (currently complains about an `--overwrite` argument that `jupyter-book toc` does not have)
+- find a wait to build on the current repo rather than creating another directory
+- fix the Jupytext issues (`--set-kernel` not working, `--execute` to occur in the notebook folder)
