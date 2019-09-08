@@ -124,14 +124,7 @@ ln -s ../style/ style
 cd ../..
 ```
 
-### Inject Jupytext header
-
-We also inject the current kernel into the Markdown file (later on, if possible, I'd prefer to pass the desired kernel as an option to Jupyter book)
-
-```bash
-# Register this environment as elegant-scipy-kernel
-python -m ipykernel install --name elegant-scipy-kernel --user
-```
+### Change the extension to either md or ipynb
 
 ```bash
 # Convert all notebooks to ipynb/md 
