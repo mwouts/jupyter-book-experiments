@@ -6,25 +6,14 @@ This document is a Bash Jupyter notebook that you can run interactively in Jupyt
 
 ## Create an environment with latest Jupyter Book and Jupytext
 
-To start with we init conda on our Binder
-```bash
-. "/srv/conda/etc/profile.d/conda.sh"
+Here I will assume that you are working in a conda or a virtual environment. You could have used, for instance
+
 ```
-
-Then we create a new conda environment
-
-```bash
 conda create -n jupytextbook -y
 conda activate jupytextbook
 ```
 
-There we install a few standard packages (dependencies of Jupyter Book and Jupytext)
-
-```bash
-conda install jupyter numpy matplotlib tqdm pytest -y
-```
-
-Finally we install the latest version of Jupytext
+In this environment we install the latest version of Jupytext
 
 ```bash
 git clone https://github.com/mwouts/jupytext.git
@@ -51,79 +40,123 @@ pip install -r elegant-scipy/requirements.txt
 python -m ipykernel install --name elegant-scipy-kernel --user
 ```
 
-We also inject the current kernel into the Markdown file (later on, if possible, I'd prefer to pass the desired kernel as an option to Jupyter book)
+## Turn Elegant Scipy into a Jupyter Book
 
-Unfortunately the below does not work - to be fixed at https://github.com/mwouts/jupytext/issues/325
+In this paragraph we try to reproduce the folder structure expected by Jupyter Book. Here we follow the minimal book example from [`jupyter_book/minimal`](https://github.com/jupyter/jupyter-book/tree/master/jupyter_book/minimal).
 
-```bash
-# jupytext --set-kernel elegant-scipy-kernel elegant-scipy/markdown/*
-```
-
-So I'll do it manually:
+### Create the Table of Contents
 
 ```bash
-for MDFILE in elegant-scipy/markdown/*.markdown; do
-echo '---
-jupyter:
-  jupytext:
-    text_representation:
-      extension: .markdown
-      format_name: markdown
-      format_version: '1.1'
-      jupytext_version: 1.2.3
-  kernelspec:
-    display_name: elegant-scipy-kernel
-    language: python
-    name: elegant-scipy-kernel
----
-
-' | cat - $MDFILE > /tmp/concat
-mv /tmp/concat $MDFILE
-done
-```
-
-## Create our Jupyter Book
-
-We first create our book
-
-```bash
-jupyter-book create elegant-scipy-book --content-folder elegant-scipy/markdown --license elegant-scipy/LICENSE.md
-```
-
-Then we update the table of contents (with only two chapters for now)
-
-```bash
-echo '- title: Elegant Scipy
+mkdir elegant-scipy/_data
+echo '# Say we start with the Acknowledgements
+- title: Elegant Scipy
   url: /acknowledgements
   not_numbered: true
-  expand_sections: true
-  sections:
-  - title: Preface
-    url: /preface
-    not_numbered: true
-  - title: "Elegant NumPy: The Foundation of Scientific Python"
-    url: /ch1
-  - title: Quantile Normalization with NumPy and SciPy
-    url: /ch2
-  - title: Epilogue
-    url: /epilogue
-    not_numbered: true
-' > ./elegant-scipy-book/_data/toc.yml
+
+# External link
+- title: GitHub repository
+  url: https://github.com/jupyter/jupyter-book
+  external: true
+  not_numbered: true
+
+# Adds a search bar link
+- title: Search
+  search: true
+
+# Divider for meta-pages and content page
+- divider: true
+
+# An now the chapters
+- title: Preface
+  url: /preface
+  not_numbered: true
+- title: Quantile Normalization with NumPy and SciPy
+  url: /ch2
+  not_numbered: true
+- title: Epilogue
+  url: /epilogue
+  not_numbered: true
+' > elegant-scipy/_data/toc.yml
 ```
 
-and finally, we build the book
+### Create the `_config.yml` file
 
 ```bash
-jupyter-book build elegant-scipy-book
+echo '#######################################################################################
+# Jekyll site settings
+title: Elegant Scipy
+author: Juan Nunez-Iglesias (@jni), Harriet Dashnow (@hdashnow), and Stéfan van der Walt (@stefanv)
+email: YOUR EMAIL
+
+baseurl: "/" # the subpath of your site, e.g. /blog. If there is no subpath for your site, use an empty string ""
+url: "YOUR URL" # the base hostname & protocol for your site, e.g. http://example.com
+
+textbook_logo_link        : https://jupyter.org/jupyter-book/  # A link for the logo.
+
+#######################################################################################
+# Interact link settings
+
+# General interact settings
+use_jupyterlab                   : false  # If 'true', interact links will use JupyterLab as the interface
+
+# Jupyterhub link settings
+use_jupyterhub_button            : false  # If 'true', display a button that will direct users to a JupyterHub (that you provide)
+
+# Binder link settings
+use_binder_button                : false  # If 'true', add a binder button for interactive links
+binder_repo_org                  : "elegant-scipy"  # The username or organization that owns this repository
+binder_repo_name                 : "elegant-scipy"  # The name of the repository on the web
+
+#######################################################################################
+# Jupyter Book settings
+content_folder_name : "markdown"
+' > elegant-scipy/_config.yml
 ```
 
-The result is a collection of `.md` files in `elegant-scipy-book/_build`
+### Fix the notebook configuration
+
+The notebooks expect to find the `data` and `style` folders at the same level. So we add a few symbolic links:
 
 ```bash
-ls -l elegant-scipy-book/_build
+cd elegant-scipy/markdown
+ln -s ../data/ data
+ln -s ../style/ style
+cd ../..
 ```
 
-# TODO
-- fix the `jupyter-book create` command (currently complains about an `--overwrite` argument that `jupyter-book toc` does not have)
-- find a wait to build on the current repo rather than creating another directory
-- fix the Jupytext issues (`--set-kernel` not working, `--execute` to occur in the notebook folder)
+### Inject Jupytext header
+
+We also inject the current kernel into the Markdown file (later on, if possible, I'd prefer to pass the desired kernel as an option to Jupyter book)
+
+```bash
+# Register this environment as elegant-scipy-kernel
+python -m ipykernel install --name elegant-scipy-kernel --user
+```
+
+```bash
+# Convert all notebooks to ipynb/md 
+# ** ?? --execute not working on ch1.markdown ??
+cd elegant-scipy/markdown
+jupytext --to ipynb --set-kernel elegant-scipy-kernel --execute ch2.markdown
+
+# ** ?? .markdown extension is not accepted by JupyterBook ?
+mv acknowledgements.markdown acknowledgements.md
+mv preface.markdown preface.md
+mv epilogue.markdown epilogue.md
+cd ../..
+```
+
+## Compile our book
+
+Finally, we build the book with
+
+```bash
+jupyter-book build elegant-scipy
+```
+
+The intermediate result is a collection of `.md` files in `elegant-scipy/_build`
+
+```bash
+ls -l elegant-scipy/_build
+```
+
