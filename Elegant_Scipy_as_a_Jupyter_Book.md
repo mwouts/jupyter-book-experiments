@@ -9,8 +9,15 @@ This document is a Bash Jupyter notebook that you can run interactively in Jupyt
 Here I will assume that you are working in a conda or a virtual environment. You could have used, for instance
 
 ```
-conda create -n jupytextbook -y
-conda activate jupytextbook
+conda create -n jpbook -y
+conda activate jpbook
+```
+
+or 
+
+```
+virtualenv jpbook
+source jpbook/bin/activate
 ```
 
 In this environment we install the latest version of Jupytext
@@ -42,12 +49,22 @@ python -m ipykernel install --name elegant-scipy-kernel --user
 
 ## Turn Elegant Scipy into a Jupyter Book
 
-In this paragraph we try to reproduce the folder structure expected by Jupyter Book. Here we follow the minimal book example from [`jupyter_book/minimal`](https://github.com/jupyter/jupyter-book/tree/master/jupyter_book/minimal).
+In this paragraph we try to reproduce the folder structure of a Jupyter Book.
+
+```bash
+jupyter-book create samplebook
+cd samplebook
+rm -rf content _bibliography requirements.txt
+mv Makefile MakefileJB
+cd ..
+
+mv samplebook/* elegant-scipy/
+rmdir samplebook
+```
 
 ### Create the Table of Contents
 
 ```bash
-mkdir elegant-scipy/_data
 echo '# Say we start with the Acknowledgements
 - title: Elegant Scipy
   url: /acknowledgements
@@ -113,17 +130,9 @@ content_folder_name : "markdown"
 ' > elegant-scipy/_config.yml
 ```
 
-### Copy the jupyter book scripts and templates
-
-```bash
-jupyter-book create samplebook
-cp -R samplebook/scripts elegant-scipy/
-rm -rf samplebook
-```
-
 ### Fix the notebook configuration
 
-The notebooks seem to expect the `data` and `style` folders at the same level. So we add a few symbolic links:
+The notebooks expect the `data` and `style` folders at the same level. Here we add a few symbolic links, but maybe (as Jupyter Book copies those folders) it would be better to change the notebooks to leave the folders where they are:
 
 ```bash
 cd elegant-scipy/markdown
@@ -161,3 +170,38 @@ The intermediate result is a collection of `.md` files in `elegant-scipy/_build`
 ls -l elegant-scipy/_build
 ```
 
+## Prune and publish the book
+
+To start with, we revert the changes in the Markdown folder:
+
+```
+cd elegant-scipy
+git checkout -- markdown
+cd markdown/
+rm data style *.md *.ipynb
+cd ..
+git diff
+```
+
+Then we remove unnecessary files from the `_build` folder:
+
+```
+cd _build
+rm -rf data style sparse_table.txt
+cd ..
+```
+
+Finally we publish the resulting site on github:
+
+```
+git add .
+git commit -m 'Elegant Scipy as a Jupyter Book'
+
+git remote remove origin
+git remote add origin git@github.com:mwouts/elegant-scipy-as-a-jp-book.git
+git push -u origin master
+```
+
+Now our repo is online cf. https://github.com/mwouts/elegant-scipy-as-a-jp-book
+
+However I'm not sure where to find it on GitHub Pages... Maybe a variation of https://mwouts.github.io/elegant-scipy-as-a-jp-book/markdown/ch2.html ?
