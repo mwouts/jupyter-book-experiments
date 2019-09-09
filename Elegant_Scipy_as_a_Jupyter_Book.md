@@ -113,9 +113,17 @@ content_folder_name : "markdown"
 ' > elegant-scipy/_config.yml
 ```
 
+### Copy the jupyter book scripts and templates
+
+```bash
+jupyter-book create samplebook
+cp -R samplebook/scripts elegant-scipy/
+rm -rf samplebook
+```
+
 ### Fix the notebook configuration
 
-The notebooks expect to find the `data` and `style` folders at the same level. So we add a few symbolic links:
+The notebooks seem to expect the `data` and `style` folders at the same level. So we add a few symbolic links:
 
 ```bash
 cd elegant-scipy/markdown
