@@ -87,6 +87,9 @@ echo '# Say we start with the Acknowledgements
 - title: Preface
   url: /preface
   not_numbered: true
+- title: Elegant NumPy: The Foundation of Scientific Python
+  url: /ch1
+  not_numbered: true
 - title: Quantile Normalization with NumPy and SciPy
   url: /ch2
   not_numbered: true
@@ -144,10 +147,9 @@ cd ../..
 ### Change the extension to either md or ipynb
 
 ```bash
-# Convert all notebooks to ipynb/md 
-# ** ?? --execute not working on ch1.markdown ??
+# Add the Jupytext header to the notebooks (book Chapters)
 cd elegant-scipy/markdown
-jupytext --to ipynb --set-kernel elegant-scipy-kernel --execute ch2.markdown
+jupytext --set-kernel - ch1.markdown ch2.markdown
 
 # ** ?? .markdown extension is not accepted by JupyterBook ?
 mv acknowledgements.markdown acknowledgements.md
