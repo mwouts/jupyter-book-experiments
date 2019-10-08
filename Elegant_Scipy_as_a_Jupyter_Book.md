@@ -4,7 +4,9 @@
 
 This document is a Bash Jupyter notebook that you can run interactively in Jupyter - simply click on the Binder link above.
 
-## Create an environment with latest Jupyter Book and Jupytext
+And the code below owes much to Chris' [jupyter-book-deploy-demo](https://github.com/choldgraf/jupyter-book-deploy-demo/blob/master/netlify.toml).
+
+## Create an environment with Jupytext and latest Jupyter Book
 
 Here I will assume that you are working in a conda or a virtual environment. You could have used, for instance
 
@@ -23,16 +25,21 @@ source jpbook/bin/activate
 In this environment we install the latest version of Jupytext
 
 ```bash
-git clone https://github.com/mwouts/jupytext.git
-pip install ./jupytext
+pip install jupytext>=1.2.4
 ```
 
 And of Jupyter Book
 
 ```bash
-git clone https://github.com/jupyter/jupyter-book.git
-pip install ./jupyter-book
+pip install -U git+https://github.com/jupyter/jupyter-book
 ```
+
+<!-- #region -->
+You are also expected to have `ruby` available, and Bundler. Install Bundler with e.g.
+```bash
+gem install bundler -v '2.0.2'
+```
+<!-- #endregion -->
 
 ## Download Elegant-Scipy
 
@@ -49,146 +56,111 @@ python -m ipykernel install --name elegant-scipy-kernel --user
 
 ## Turn Elegant Scipy into a Jupyter Book
 
-In this paragraph we try to reproduce the folder structure of a Jupyter Book.
+Jupyter Book seems to expect `.md` files rather than `.markdown` files. We rename the files:
 
 ```bash
-jupyter-book create samplebook
-cd samplebook
-rm -rf content _bibliography requirements.txt
-mv Makefile MakefileJB
-cd ..
-
-mv samplebook/* elegant-scipy/
-rmdir samplebook
+# Associate the markdown files with a kernel
+cd elegant-scipy/markdown/
+jupytext --set-kernel elegant-scipy-kernel *.markdown --to md
+rm *.markdown
+cd ../..
 ```
 
-### Create the Table of Contents
+Then we create the book itself
 
 ```bash
-echo '# Say we start with the Acknowledgements
-- title: Elegant Scipy
-  url: /acknowledgements
-  not_numbered: true
+jupyter-book create elegant-scipy-as-a-jupyter-book --content-folder elegant-scipy/markdown
+```
 
-# External link
-- title: GitHub repository
-  url: https://github.com/jupyter/jupyter-book
-  external: true
-  not_numbered: true
+### Update the Table of Contents
 
-# Adds a search bar link
-- title: Search
-  search: true
+Jupyter Book created a sample ToC for us - we'll review and edit it:
 
-# Divider for meta-pages and content page
-- divider: true
+```bash
+cat elegant-scipy-as-a-jupyter-book/_data/toc.yml
+```
 
-# An now the chapters
+```bash
+echo '- title: Elegant Scipy
+  url: acknowledgements  
 - title: Preface
-  url: /preface
-  not_numbered: true
-- title: Elegant NumPy: The Foundation of Scientific Python
-  url: /ch1
-  not_numbered: true
+  url: preface
+- title: "Elegant NumPy: The Foundation of Scientific Python"
+  url: ch1
 - title: Quantile Normalization with NumPy and SciPy
-  url: /ch2
-  not_numbered: true
+  url: ch2
+- title: Networks of Image Regions with ndimage
+  url: ch3
+- title: Frequency and the fast Fourier transform
+  url: ch4
+- title: Contingency tables using sparse coordinate matrices
+  url: ch5
+- title: Linear algebra in SciPy
+  url: ch6
+- title: Function optimization in SciPy
+  url: ch7
+- title: Big Data in Little Laptop with Toolz
+  url: ch8
 - title: Epilogue
-  url: /epilogue
-  not_numbered: true
-' > elegant-scipy/_data/toc.yml
+  url: epilogue
+' > elegant-scipy-as-a-jupyter-book/_data/toc.yml
 ```
 
-### Create the `_config.yml` file
+### Update the `_config.yml` file
+
+TODO: edit Author Name and description in this file:
 
 ```bash
-echo '#######################################################################################
-# Jekyll site settings
-title: Elegant Scipy
-author: Juan Nunez-Iglesias (@jni), Harriet Dashnow (@hdashnow), and Stéfan van der Walt (@stefanv)
-email: YOUR EMAIL
-
-baseurl: "/" # the subpath of your site, e.g. /blog. If there is no subpath for your site, use an empty string ""
-url: "YOUR URL" # the base hostname & protocol for your site, e.g. http://example.com
-
-textbook_logo_link        : https://jupyter.org/jupyter-book/  # A link for the logo.
-
-#######################################################################################
-# Interact link settings
-
-# General interact settings
-use_jupyterlab                   : false  # If 'true', interact links will use JupyterLab as the interface
-
-# Jupyterhub link settings
-use_jupyterhub_button            : false  # If 'true', display a button that will direct users to a JupyterHub (that you provide)
-
-# Binder link settings
-use_binder_button                : false  # If 'true', add a binder button for interactive links
-binder_repo_org                  : "elegant-scipy"  # The username or organization that owns this repository
-binder_repo_name                 : "elegant-scipy"  # The name of the repository on the web
-
-#######################################################################################
-# Jupyter Book settings
-content_folder_name : "markdown"
-' > elegant-scipy/_config.yml
+cat elegant-scipy-as-a-jupyter-book/_config.yml
 ```
 
-### Fix the notebook configuration
+### Make sure the notebooks can run
 
 The notebooks expect the `data` and `style` folders at the same level. Here we add a few symbolic links, but maybe (as Jupyter Book copies those folders) it would be better to change the notebooks to leave the folders where they are:
 
 ```bash
-cd elegant-scipy/markdown
-ln -s ../data/ data
-ln -s ../style/ style
+cd elegant-scipy-as-a-jupyter-book/content
+ln -s ../../elegant-scipy/data/ data
+ln -s ../../elegant-scipy/style/ style
 cd ../..
 ```
 
-### Change the extension to either md or ipynb
+### Execute the book
 
 ```bash
-# Add the Jupytext header to the notebooks (book Chapters)
-cd elegant-scipy/markdown
-jupytext --set-kernel - ch1.markdown ch2.markdown
-
-# ** ?? .markdown extension is not accepted by JupyterBook ?
-mv acknowledgements.markdown acknowledgements.md
-mv preface.markdown preface.md
-mv epilogue.markdown epilogue.md
-cd ../..
+jupyter-book build elegant-scipy-as-a-jupyter-book/ --overwrite
 ```
 
-## Compile our book
-
-Finally, we build the book with
+The intermediate result is a collection of `.html` files in `elegant-scipy-as-a-jupyter-book/_build`
 
 ```bash
-jupyter-book build elegant-scipy
+ls -l elegant-scipy-as-a-jupyter-book/_build
 ```
 
-The intermediate result is a collection of `.md` files in `elegant-scipy/_build`
+### Render the book locally
+
+
+In theory we could build the book locally with `jekyll`. Unfortunately the `make install` part failed on my Ubuntu (sorry this is my first time with `ruby`)
 
 ```bash
-ls -l elegant-scipy/_build
+cd elegant-scipy-as-a-jupyter-book
+make install
+bundle exec jekyll build
 ```
 
-## Prune and publish the book
-
-To start with, we revert the changes in the Markdown folder:
+## Publish the book
 
 ```
-cd elegant-scipy
-git checkout -- markdown
-cd markdown/
-rm data style *.md *.ipynb
-cd ..
-git diff
+cd elegant-scipy-as-a-jupyter-book
+git init
 ```
 
-Then we remove unnecessary files from the `_build` folder:
+Then we remove links to the original data and style from the `_build` and `content` folder:
 
 ```
 cd _build
+rm -rf data style sparse_table.txt
+cd ../content
 rm -rf data style sparse_table.txt
 cd ..
 ```
@@ -198,12 +170,8 @@ Finally we publish the resulting site on github:
 ```
 git add .
 git commit -m 'Elegant Scipy as a Jupyter Book'
-
-git remote remove origin
 git remote add origin git@github.com:mwouts/elegant-scipy-as-a-jp-book.git
-git push -u origin master
+git push -uf origin master
 ```
 
-Now our repo is online cf. https://github.com/mwouts/elegant-scipy-as-a-jp-book
-
-However I'm not sure where to find it on GitHub Pages... Maybe a variation of https://mwouts.github.io/elegant-scipy-as-a-jp-book/markdown/ch2.html ?
+Now our repo is online cf. https://github.com/mwouts/elegant-scipy-as-a-jp-book, and is indeed rendered as a Jupyter Book here: https://mwouts.github.io/elegant-scipy-as-a-jp-book.
